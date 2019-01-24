@@ -1,6 +1,7 @@
 package QcloudSms
 
 import (
+	"crypto/tls"
 	"math"
 	"math/rand"
 	"time"
@@ -96,7 +97,13 @@ func request(options option, callback callbackFunc) error {
 		req.Header.Add(k, v)
 	}
 	var resp *http.Response
-	c := http.Client{}
+	tr := &http.Transport{    //解决x509: certificate signed by unknown authority
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	c := http.Client{
+		Timeout:   15 * time.Second,
+		Transport: tr,    //解决x509: certificate signed by unknown authority
+	}
 	resp, err = c.Do(req)
 	if err != nil {
 		return err
